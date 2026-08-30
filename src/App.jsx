@@ -61,15 +61,14 @@ function App() {
             </button>
             <button 
               onClick={() => {
-                if (window.confirm('Bạn có chắc chắn muốn XÓA HẾT tất cả người chơi và số lượng bài để tạo ván mới hoàn toàn?')) {
-                  setPlayers([]);
-                  setRoleQuantities({});
+                if (window.confirm('Quản trò mới? Đội hình sẽ được giữ nguyên và chuyển về Trang 1 để bạn có thể thêm/bớt người chơi hoặc thay đổi số lượng bài.')) {
+                  setPlayers(players.map(p => ({ id: p.id, name: p.name, isAlive: true, role: null, roleInstId: null, notes: {} })));
                   setStep(1);
                 }
               }}
               className="px-3 py-1.5 text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 rounded-lg flex items-center gap-1 transition-colors"
             >
-              <Trash2 size={14} /> Xóa Hết
+              <Users size={14} /> Đổi Đội Hình
             </button>
           </div>
         </div>
