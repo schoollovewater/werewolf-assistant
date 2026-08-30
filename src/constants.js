@@ -17,7 +17,7 @@ export const ROLE_COLORS = {
   'nhan_ban': { bg: 'bg-gray-500', border: 'border-gray-500', text: 'text-gray-500', whiteText: 'text-white' },
   // Các dải màu Sói
   'soi_thuong': { bg: 'bg-red-600', border: 'border-red-600', text: 'text-red-600', whiteText: 'text-white' },
-  'soi_an': { bg: 'bg-red-700', border: 'border-red-700', text: 'text-red-700', whiteText: 'text-white' },
+  'ke_phan_boi': { bg: 'bg-red-700', border: 'border-red-700', text: 'text-red-700', whiteText: 'text-white' },
   'soi_phap_su': { bg: 'bg-rose-600', border: 'border-rose-600', text: 'text-rose-600', whiteText: 'text-white' },
   'soi_cuong_no': { bg: 'bg-red-800', border: 'border-red-800', text: 'text-red-800', whiteText: 'text-white' },
   'soi_dau_dan': { bg: 'bg-red-950', border: 'border-red-950', text: 'text-red-950', whiteText: 'text-white' }
@@ -34,7 +34,7 @@ export const DEFAULT_ROLES = [
   { id: 'tho_san', name: 'Thợ Săn', team: 'VILLAGER' },
   { id: 'nhan_ban', name: 'Nhân Bản', team: 'VILLAGER' },
   { id: 'soi_thuong', name: 'Sói Thường', team: 'WEREWOLF' },
-  { id: 'soi_an', name: 'Sói Ẩn', team: 'WEREWOLF' },
+  { id: 'ke_phan_boi', name: 'Kẻ Phản Bội', team: 'WEREWOLF' },
   { id: 'soi_phap_su', name: 'Sói Pháp Sư', team: 'WEREWOLF' },
   { id: 'soi_cuong_no', name: 'Sói Cuồng Nộ', team: 'WEREWOLF' },
   { id: 'soi_dau_dan', name: 'Sói Đầu Đàn', team: 'WEREWOLF' },
@@ -46,18 +46,19 @@ export const DEFAULT_ROLES = [
 export const NIGHT_ORDER = [
   'than_tinh_yeu',
   'nhan_ban',
-  'bao_ve',
-  'soi_thuong',
-  'soi_an',
-  'soi_phap_su',
-  'soi_cuong_no',
-  'soi_dau_dan',
-  'phu_thuy',
-  'tien_tri',
-  'tham_tu',
-  'truong_toc_gau',
   'nguyet_nu',
-  'tho_san'
+  'ke_bi_nguyen',
+  'soi_dau_dan',
+  'ke_phan_boi',
+  'soi_phap_su',
+  'soi_thuong',
+  'bao_ve',
+  'tham_tu',
+  'phu_thuy',
+  'tho_san',
+  'tien_tri',
+  'soi_cuong_no',
+  'truong_toc_gau'
 ];
 
 export function getRoleColor(roleId, team) {
