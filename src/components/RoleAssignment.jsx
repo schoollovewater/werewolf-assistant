@@ -1,60 +1,84 @@
 import React from 'react';
-import { TEAM_COLORS } from '../constants';
+import { getRoleColor } from '../constants';
 import { Shield, ArrowRight, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
-export default function RoleAssignment({ players, setPlayers, availableRoles, onNext, onPrev }) {
-  const handleRoleChange = (playerId, roleId) => {
+function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
+
+export default function RoleAssignment({ players, setPlayers, expandedRoles, onNext, onPrev }) {
+  
+  const handlePlayerAssign = (roleInstId, playerId) => {
     setPlayers(players.map(p => {
-      if (p.id === playerId) {
-        return { ...p, role: roleId };
+      // Bỏ role của player này nếu họ đã được gán trước đó (để tránh 1 người ôm 2 thẻ)
+      let newP = { ...p };
+      if (newP.id === playerId) {
+        newP.roleInstId = roleInstId;
+        newP.role = expandedRoles.find(r => r.instanceId === roleInstId)?.id; // Lưu id gốc để tiện query
+      } else if (newP.roleInstId === roleInstId) {
+        // Gỡ role khỏi người đang giữ thẻ này trước đó
+        newP.roleInstId = null;
+        newP.role = null;
       }
-      return p;
+      return newP;
     }));
   };
 
-  const isAllAssigned = players.every(p => p.role !== null);
+  // Check xem còn thẻ nào chưa có chủ
+  const assignedCount = players.filter(p => p.roleInstId !== null).length;
+  const isAllAssigned = assignedCount === expandedRoles.length;
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-6 bg-card rounded-2xl shadow-xl border border-border">
+    <div className="w-full max-w-4xl mx-auto p-6 bg-card rounded-2xl shadow-xl border border-border">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-primary-dark mb-2">Gán Vai Trò</h2>
-        <p className="text-sm text-gray-400">Chọn vai trò cho từng người chơi tương ứng với lá bài họ bốc được.</p>
+        <h2 className="text-3xl font-bold text-foreground mb-2">Gán Vai Trò</h2>
+        <p className="text-sm text-gray-500">Quản trò chọn thẻ bài (bên trái) và gán cho người chơi (bên phải).</p>
       </div>
 
-      <div className="space-y-4 mb-8">
-        {players.map((player, index) => {
-          const selectedRoleInfo = availableRoles.find(r => r.id === player.role);
-          const teamStyle = selectedRoleInfo ? TEAM_COLORS[selectedRoleInfo.team] : null;
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-h-[60vh] overflow-y-auto pr-2 content-start">
+        {expandedRoles.map((role, index) => {
+          const style = getRoleColor(role.id, role.team);
+          const assignedPlayer = players.find(p => p.roleInstId === role.instanceId);
 
           return (
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              key={player.id} 
-              className={`flex items-center gap-4 p-4 rounded-xl border transition-colors ${teamStyle ? teamStyle.bg + ' ' + teamStyle.border : 'bg-background border-border'}`}
+              key={role.instanceId} 
+              className="flex border border-border rounded-xl overflow-hidden bg-background h-16 shadow-sm"
             >
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary-dark font-bold shrink-0">
-                {index + 1}
+              {/* Cột trái: Thẻ Bài */}
+              <div className={cn(
+                "w-1/2 flex items-center justify-center font-bold text-sm px-2 text-center",
+                style.bg, style.whiteText
+              )}>
+                {role.name}
               </div>
-              <div className="flex-1 font-bold text-lg text-foreground truncate">
-                {player.name}
-              </div>
-              <div className="flex-1 min-w-[200px]">
+              
+              {/* Cột phải: Chọn người chơi */}
+              <div className="w-1/2 flex items-center">
                 <select
-                  value={player.role || ''}
-                  onChange={(e) => handleRoleChange(player.id, e.target.value)}
-                  className={`w-full p-3 bg-card border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-dark appearance-none cursor-pointer font-medium
-                    ${!player.role ? 'text-gray-500 border-border' : (teamStyle.text + ' ' + teamStyle.border)}
-                  `}
+                  value={assignedPlayer ? assignedPlayer.id : ''}
+                  onChange={(e) => handlePlayerAssign(role.instanceId, e.target.value)}
+                  className={cn(
+                    "w-full h-full bg-transparent px-3 outline-none cursor-pointer text-sm font-medium",
+                    !assignedPlayer ? 'text-gray-500 italic' : 'text-foreground'
+                  )}
                 >
-                  <option value="" disabled>-- Chọn thẻ bài --</option>
-                  {availableRoles.map(role => (
-                    <option key={role.id} value={role.id} className="text-foreground">
-                      {role.name}
-                    </option>
-                  ))}
+                  <option value="" disabled>-- Chọn người --</option>
+                  {players.map(p => {
+                    // Disable option nếu người này đã có thẻ khác (trừ khi chính là họ)
+                    const isTaken = p.roleInstId !== null && p.roleInstId !== role.instanceId;
+                    return (
+                      <option key={p.id} value={p.id} disabled={isTaken}>
+                        {p.name} {isTaken ? '(Đã có bài)' : ''}
+                      </option>
+                    )
+                  })}
                 </select>
               </div>
             </motion.div>
@@ -62,7 +86,7 @@ export default function RoleAssignment({ players, setPlayers, availableRoles, on
         })}
       </div>
 
-      <div className="flex justify-between border-t border-border pt-6">
+      <div className="flex justify-between border-t border-border pt-6 mt-auto">
         <button
           onClick={onPrev}
           className="px-6 py-3 bg-background border border-border text-foreground font-medium rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
@@ -73,10 +97,10 @@ export default function RoleAssignment({ players, setPlayers, availableRoles, on
         <button
           onClick={onNext}
           disabled={!isAllAssigned}
-          className="px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center gap-2"
+          className="px-8 py-3 bg-primary text-white font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
         >
-          <Shield size={20} />
           Vào Trận
+          <ArrowRight size={20} />
         </button>
       </div>
     </div>

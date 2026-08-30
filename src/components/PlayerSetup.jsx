@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { UserPlus, X, ArrowRight, Check, Plus } from 'lucide-react';
+import { UserPlus, X, ArrowRight, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TEAM_COLORS } from '../constants';
+import { getRoleColor } from '../constants';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -14,8 +14,9 @@ export default function PlayerSetup({
   setPlayers, 
   allRoles, 
   setAllRoles, 
-  selectedRoleIds, 
-  setSelectedRoleIds, 
+  roleQuantities, 
+  setRoleQuantities,
+  totalCards,
   onNext 
 }) {
   const [name, setName] = useState('');
@@ -28,7 +29,7 @@ export default function PlayerSetup({
     if (!name.trim()) return;
     if (players.some(p => p.name.toLowerCase() === name.trim().toLowerCase())) return;
     
-    setPlayers([...players, { id: Date.now().toString(), name: name.trim(), role: null, isAlive: true, note: '' }]);
+    setPlayers([...players, { id: Date.now().toString(), name: name.trim(), roleInstId: null, isAlive: true, notes: {} }]);
     setName('');
   };
 
@@ -36,12 +37,19 @@ export default function PlayerSetup({
     setPlayers(players.filter(p => p.id !== id));
   };
 
-  const toggleRoleSelection = (roleId) => {
-    if (selectedRoleIds.includes(roleId)) {
-      setSelectedRoleIds(selectedRoleIds.filter(id => id !== roleId));
-    } else {
-      setSelectedRoleIds([...selectedRoleIds, roleId]);
-    }
+  const updateQuantity = (roleId, delta) => {
+    setRoleQuantities(prev => {
+      const current = prev[roleId] || 0;
+      const next = Math.max(0, current + delta);
+      
+      const newQ = { ...prev };
+      if (next === 0) {
+        delete newQ[roleId];
+      } else {
+        newQ[roleId] = next;
+      }
+      return newQ;
+    });
   };
 
   const handleAddCustomRole = (e) => {
@@ -55,18 +63,20 @@ export default function PlayerSetup({
     };
     
     setAllRoles([...allRoles, newRole]);
-    setSelectedRoleIds([...selectedRoleIds, newRole.id]);
+    updateQuantity(newRole.id, 1);
     setNewRoleName('');
     setShowCustomRoleForm(false);
   };
 
+  const isWarning = totalCards !== players.length;
+
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-6">
+    <div className="w-full max-w-5xl mx-auto flex flex-col md:flex-row gap-6">
       {/* Cột 1: Người chơi */}
       <div className="flex-1 p-6 bg-card rounded-2xl shadow-xl border border-border flex flex-col">
         <div className="mb-6 border-b border-border pb-4">
-          <h2 className="text-2xl font-bold text-primary-dark mb-1">Người Chơi</h2>
-          <p className="text-sm text-gray-400">Đã thêm: {players.length}</p>
+          <h2 className="text-2xl font-bold text-foreground mb-1">Người Chơi</h2>
+          <p className="text-sm text-gray-500">Đã thêm: <strong className="text-foreground">{players.length}</strong> người</p>
         </div>
 
         <form onSubmit={handleAddPlayer} className="flex gap-2 mb-6">
@@ -75,18 +85,18 @@ export default function PlayerSetup({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Tên người chơi..."
-            className="flex-1 px-4 py-2 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-dark"
+            className="flex-1 px-4 py-2 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
           />
           <button
             type="submit"
             disabled={!name.trim()}
-            className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             <UserPlus size={20} />
           </button>
         </form>
 
-        <div className="flex-1 overflow-y-auto min-h-[200px]">
+        <div className="flex-1 overflow-y-auto min-h-[200px] content-start">
           <div className="flex flex-wrap gap-2">
             <AnimatePresence>
               {players.map(player => (
@@ -117,15 +127,17 @@ export default function PlayerSetup({
       </div>
 
       {/* Cột 2: Roles tham gia */}
-      <div className="flex-1 p-6 bg-card rounded-2xl shadow-xl border border-border flex flex-col">
-        <div className="mb-6 border-b border-border pb-4 flex justify-between items-center">
+      <div className="flex-[1.5] p-6 bg-card rounded-2xl shadow-xl border border-border flex flex-col">
+        <div className="mb-6 border-b border-border pb-4 flex justify-between items-end">
           <div>
-            <h2 className="text-2xl font-bold text-primary-dark mb-1">Thẻ Bài (Roles)</h2>
-            <p className="text-sm text-gray-400">Đã chọn: {selectedRoleIds.length}</p>
+            <h2 className="text-2xl font-bold text-foreground mb-1">Thẻ Bài (Roles)</h2>
+            <p className={cn("text-sm font-medium", isWarning ? "text-red-500" : "text-green-500")}>
+              Đã chọn: {totalCards} thẻ {isWarning && `(Cần ${players.length} thẻ)`}
+            </p>
           </div>
           <button 
             onClick={() => setShowCustomRoleForm(!showCustomRoleForm)}
-            className="p-2 bg-background border border-border hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-1 text-sm"
+            className="px-3 py-1.5 bg-background border border-border hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-1 text-sm font-medium text-foreground"
           >
             <Plus size={16} /> Thêm Role
           </button>
@@ -137,8 +149,8 @@ export default function PlayerSetup({
               type="text"
               value={newRoleName}
               onChange={(e) => setNewRoleName(e.target.value)}
-              placeholder="Tên chức năng (VD: Thợ săn ma)"
-              className="w-full px-3 py-2 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-dark text-sm"
+              placeholder="Tên chức năng (VD: Người ngoài hành tinh)"
+              className="w-full px-3 py-2 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
             />
             <div className="flex gap-2">
               <select 
@@ -153,7 +165,7 @@ export default function PlayerSetup({
               <button
                 type="submit"
                 disabled={!newRoleName.trim()}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 text-sm font-bold"
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 text-sm font-bold"
               >
                 Lưu
               </button>
@@ -161,41 +173,59 @@ export default function PlayerSetup({
           </form>
         )}
 
-        <div className="flex-1 overflow-y-auto max-h-[400px] pr-2 space-y-2">
-          {allRoles.map(role => {
-            const isSelected = selectedRoleIds.includes(role.id);
-            const teamStyle = TEAM_COLORS[role.team];
-            
-            return (
-              <div 
-                key={role.id}
-                onClick={() => toggleRoleSelection(role.id)}
-                className={cn(
-                  "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all duration-200 select-none",
-                  isSelected ? `${teamStyle.bg} ${teamStyle.border} ${teamStyle.glow}` : "bg-background border-border hover:border-gray-400 opacity-60 grayscale-[50%]"
-                )}
-              >
-                <span className={cn("font-medium", isSelected ? teamStyle.text : "text-foreground")}>
-                  {role.name}
-                </span>
-                <div className={cn(
-                  "w-5 h-5 rounded-md border flex items-center justify-center transition-colors",
-                  isSelected ? "bg-primary border-primary text-white" : "border-gray-500"
-                )}>
-                  {isSelected && <Check size={14} />}
+        {/* Grid thẻ bài 2:3 */}
+        <div className="flex-1 overflow-y-auto max-h-[500px] pr-2">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+            {allRoles.map(role => {
+              const qty = roleQuantities[role.id] || 0;
+              const isSelected = qty > 0;
+              const style = getRoleColor(role.id, role.team);
+              
+              return (
+                <div 
+                  key={role.id}
+                  className={cn(
+                    "relative aspect-[2/3] rounded-xl flex flex-col border-2 overflow-hidden transition-all duration-200 select-none",
+                    isSelected ? `${style.bg} ${style.border}` : "bg-background border-border hover:border-gray-400 opacity-60 grayscale"
+                  )}
+                >
+                  <div className={cn(
+                    "flex-1 p-2 flex items-center justify-center text-center font-bold text-sm leading-tight",
+                    isSelected ? style.whiteText : "text-foreground"
+                  )}>
+                    {role.name}
+                  </div>
+                  
+                  {/* Điều khiển số lượng */}
+                  <div className="bg-black/40 h-10 flex items-center justify-between px-1">
+                    <button 
+                      onClick={() => updateQuantity(role.id, -1)}
+                      className="w-8 h-8 flex items-center justify-center text-white hover:bg-white/20 rounded transition-colors disabled:opacity-30"
+                      disabled={qty === 0}
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span className="text-white font-bold text-sm">{qty}</span>
+                    <button 
+                      onClick={() => updateQuantity(role.id, 1)}
+                      className="w-8 h-8 flex items-center justify-center text-white hover:bg-white/20 rounded transition-colors"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
         <div className="mt-6 pt-4 border-t border-border flex justify-end">
           <button
             onClick={onNext}
-            disabled={players.length < 3 || selectedRoleIds.length === 0}
+            disabled={players.length < 3 || isWarning}
             className="px-8 py-3 bg-foreground text-background font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
           >
-            Tiếp tục
+            {isWarning ? 'Vui lòng chọn đủ thẻ bài' : 'Gán Bài'}
             <ArrowRight size={20} />
           </button>
         </div>

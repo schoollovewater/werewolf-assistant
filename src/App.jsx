@@ -2,8 +2,9 @@ import { useState } from 'react';
 import PlayerSetup from './components/PlayerSetup';
 import RoleAssignment from './components/RoleAssignment';
 import GameDashboard from './components/GameDashboard';
+import NightView from './components/NightView';
 import { DEFAULT_ROLES } from './constants';
-import { Moon } from 'lucide-react';
+import { Moon, Users, Shield, Grid, LayoutList } from 'lucide-react';
 
 function App() {
   const [step, setStep] = useState(1);
@@ -11,34 +12,46 @@ function App() {
   
   // Toàn bộ roles (Mặc định + Custom)
   const [allRoles, setAllRoles] = useState(DEFAULT_ROLES);
-  // Danh sách ID các role được chọn để tham gia ván đấu
-  const [selectedRoleIds, setSelectedRoleIds] = useState(DEFAULT_ROLES.map(r => r.id));
+  
+  // Quản lý số lượng thẻ cho mỗi role (Ví dụ: { dan_lang: 4, soi_thuong: 2 })
+  const [roleQuantities, setRoleQuantities] = useState({});
 
-  const rolesInGame = allRoles.filter(r => selectedRoleIds.includes(r.id));
+  // Tính tổng số thẻ bài đã chọn
+  const totalCards = Object.values(roleQuantities).reduce((a, b) => a + b, 0);
+
+  // Tạo mảng thẻ bài cụ thể dựa trên số lượng (VD: [{id: dan_lang, instId: 0}, {id: dan_lang, instId: 1}])
+  const expandedRoles = [];
+  Object.entries(roleQuantities).forEach(([roleId, qty]) => {
+    const roleInfo = allRoles.find(r => r.id === roleId);
+    if (roleInfo) {
+      for (let i = 0; i < qty; i++) {
+        expandedRoles.push({
+          ...roleInfo,
+          instanceId: `${roleId}_${i}` // ID duy nhất cho thẻ bài vật lý
+        });
+      }
+    }
+  });
 
   return (
     <div className="min-h-screen p-4 sm:p-8 relative">
-      {/* Header */}
-      <header className="max-w-5xl mx-auto mb-8 flex items-center justify-between">
+      {/* Header Navigation */}
+      <header className="max-w-5xl mx-auto mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/30">
+          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg">
             <Moon size={24} className="fill-current" />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground m-0 leading-none pb-1">Ma Sói</h1>
-            <p className="text-sm text-primary-dark font-medium m-0 leading-none">Game Master Assistant</p>
+            <p className="text-sm text-gray-500 font-medium m-0 leading-none">Game Master Pro</p>
           </div>
         </div>
         
-        <div className="flex gap-2">
-          {[1, 2, 3].map(i => (
-            <div 
-              key={i}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                step === i ? 'bg-primary w-6' : step > i ? 'bg-primary/50' : 'bg-border'
-              }`}
-            />
-          ))}
+        <div className="flex bg-background border border-border rounded-xl p-1 shadow-sm">
+          <NavButton active={step === 1} onClick={() => setStep(1)} icon={<Users size={18} />} text="1. Setup" />
+          <NavButton active={step === 2} onClick={() => setStep(2)} icon={<Shield size={18} />} text="2. Gán Bài" />
+          <NavButton active={step === 3} onClick={() => setStep(3)} icon={<Grid size={18} />} text="3. Thẻ Bài" />
+          <NavButton active={step === 4} onClick={() => setStep(4)} icon={<LayoutList size={18} />} text="4. Gọi Đêm" />
         </div>
       </header>
 
@@ -50,8 +63,9 @@ function App() {
             setPlayers={setPlayers} 
             allRoles={allRoles}
             setAllRoles={setAllRoles}
-            selectedRoleIds={selectedRoleIds}
-            setSelectedRoleIds={setSelectedRoleIds}
+            roleQuantities={roleQuantities}
+            setRoleQuantities={setRoleQuantities}
+            totalCards={totalCards}
             onNext={() => setStep(2)} 
           />
         )}
@@ -60,7 +74,7 @@ function App() {
           <RoleAssignment 
             players={players} 
             setPlayers={setPlayers} 
-            availableRoles={rolesInGame}
+            expandedRoles={expandedRoles}
             onNext={() => setStep(3)}
             onPrev={() => setStep(1)}
           />
@@ -70,11 +84,33 @@ function App() {
           <GameDashboard 
             players={players} 
             setPlayers={setPlayers} 
-            availableRoles={rolesInGame}
+            allRoles={allRoles}
+          />
+        )}
+
+        {step === 4 && (
+          <NightView 
+            players={players} 
+            setPlayers={setPlayers} 
+            allRoles={allRoles}
           />
         )}
       </main>
     </div>
+  );
+}
+
+function NavButton({ active, onClick, icon, text }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors ${
+        active ? 'bg-primary text-white shadow-sm' : 'text-gray-500 hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-800'
+      }`}
+    >
+      {icon}
+      <span className="hidden sm:inline">{text}</span>
+    </button>
   );
 }
 
