@@ -48,17 +48,17 @@ export const NIGHT_ORDER = [
   'nhan_ban',
   'nguyet_nu',
   'ke_bi_nguyen',
+  'soi_cuong_no',
   'soi_dau_dan',
   'ke_phan_boi',
   'soi_phap_su',
   'soi_thuong',
   'bao_ve',
-  'tham_tu',
-  'phu_thuy',
-  'tho_san',
   'tien_tri',
-  'soi_cuong_no',
-  'truong_toc_gau'
+  'tham_tu',
+  'truong_toc_gau',
+  'phu_thuy',
+  'tho_san'
 ];
 
 export function getRoleColor(roleId, team) {
