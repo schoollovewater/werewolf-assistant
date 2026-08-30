@@ -129,23 +129,6 @@ export default function NightView({ players, setPlayers, allRoles }) {
                           </label>
                         </div>
                       )}
-
-                      {!isDead && roleId === 'bao_ve' && (
-                        <div className="mt-2 pt-2 border-t border-gray-800 flex items-center gap-2">
-                          <Shield size={14} className="text-green-400" />
-                          <span className="text-gray-400 text-xs">Bảo vệ:</span>
-                          <select
-                            value={notes.guardedPlayer || ''}
-                            onChange={(e) => updatePlayerNote(player.id, 'guardedPlayer', e.target.value)}
-                            className="flex-1 bg-transparent border-b border-green-900 text-green-400 px-1 py-0.5 text-sm focus:outline-none focus:border-green-500 cursor-pointer"
-                          >
-                            <option value="" className="bg-gray-900">-- Không ai --</option>
-                            {alivePlayers.map(p => (
-                              <option key={p.id} value={p.id} className="bg-gray-900">{p.name}</option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
                     </div>
                   </div>
                 );

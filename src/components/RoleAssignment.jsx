@@ -138,6 +138,27 @@ export default function RoleAssignment({ players, setPlayers, expandedRoles, onN
                   </div>
                 </div>
               )}
+
+              {/* Ghi chú chọn người nhân bản của Nhân Bản */}
+              {role.id === 'nhan_ban' && assignedPlayer && (
+                <div className="bg-cyan-950/20 p-3 border-t border-cyan-900/30 flex flex-col gap-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-cyan-500 font-medium whitespace-nowrap">Nhân bản ai:</span>
+                    <select
+                      value={assignedPlayer.notes?.doppelganger_target || ''}
+                      onChange={(e) => updatePlayerNote(assignedPlayer.id, 'doppelganger_target', e.target.value)}
+                      className="flex-1 bg-background border border-cyan-900/50 rounded px-2 py-1 text-foreground focus:outline-none focus:border-cyan-500"
+                    >
+                      <option value="">-- Chọn người --</option>
+                      {players.map(p => (
+                        p.id !== assignedPlayer.id && (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        )
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
             </motion.div>
           )
         })}
