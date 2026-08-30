@@ -56,13 +56,21 @@ export default function NightView({ players, setPlayers, allRoles }) {
 
   const alivePlayers = players.filter(p => p.isAlive);
 
+  const [filterType, setFilterType] = useState('all');
+
   return (
     <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 bg-card rounded-2xl shadow-xl border border-border">
-      <div className="flex items-center gap-3 mb-8 border-b border-border pb-4">
-        <Moon size={28} className="text-primary" />
-        <div>
-          <h2 className="text-3xl font-bold text-foreground mb-1">Màn Hình Ban Đêm</h2>
-          <p className="text-sm text-gray-500">Quản trò gọi dậy theo thứ tự từ trên xuống dưới.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-border pb-4">
+        <div className="flex items-center gap-3">
+          <Moon size={28} className="text-primary" />
+          <div>
+            <h2 className="text-3xl font-bold text-foreground mb-1">Màn Hình Ban Đêm</h2>
+            <p className="text-sm text-gray-500">Quản trò gọi dậy theo thứ tự từ trên xuống dưới.</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <FilterButton active={filterType === 'all'} onClick={() => setFilterType('all')}>Tất cả</FilterButton>
+          <FilterButton active={filterType === 'alive'} onClick={() => setFilterType('alive')}>Còn sống</FilterButton>
         </div>
       </div>
 
@@ -73,6 +81,11 @@ export default function NightView({ players, setPlayers, allRoles }) {
           
           const style = getRoleColor(roleId, roleInfo.team);
           const playersWithThisRole = playersByRole[roleId];
+          const playersToRender = filterType === 'alive' 
+            ? playersWithThisRole.filter(p => p.isAlive)
+            : playersWithThisRole;
+
+          if (playersToRender.length === 0) return null;
 
           return (
             <div key={roleId} className="flex flex-col gap-2 relative pl-8">
@@ -83,7 +96,7 @@ export default function NightView({ players, setPlayers, allRoles }) {
                 <span className="text-[10px] font-bold text-foreground">{index + 1}</span>
               </div>
 
-              {playersWithThisRole.map(player => {
+              {playersToRender.map(player => {
                 const notes = player.notes || {};
                 const isDead = !player.isAlive;
 
@@ -143,5 +156,21 @@ export default function NightView({ players, setPlayers, allRoles }) {
         )}
       </div>
     </div>
+  );
+}
+
+function FilterButton({ active, onClick, children }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "px-3 py-1.5 text-xs font-medium rounded-full transition-colors border",
+        active 
+          ? "bg-primary text-white border-primary" 
+          : "bg-background text-foreground border-border hover:bg-gray-100 dark:hover:bg-gray-800"
+      )}
+    >
+      {children}
+    </button>
   );
 }

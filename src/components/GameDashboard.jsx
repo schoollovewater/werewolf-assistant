@@ -107,10 +107,6 @@ export default function GameDashboard({ players, setPlayers, allRoles }) {
       <div className="flex flex-wrap gap-2 mb-8">
         <FilterButton active={filterType === 'all'} onClick={() => setFilterType('all')}>Tất cả</FilterButton>
         <FilterButton active={filterType === 'alive'} onClick={() => setFilterType('alive')}>Còn sống</FilterButton>
-        <FilterButton active={filterType === 'dead'} onClick={() => setFilterType('dead')}>Đã chết</FilterButton>
-        <FilterButton active={filterType === 'WEREWOLF'} onClick={() => setFilterType('WEREWOLF')}>Phe Sói</FilterButton>
-        <FilterButton active={filterType === 'VILLAGER'} onClick={() => setFilterType('VILLAGER')}>Phe Dân</FilterButton>
-        <FilterButton active={filterType === 'MUTANT'} onClick={() => setFilterType('MUTANT')}>Phe Thứ 3</FilterButton>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

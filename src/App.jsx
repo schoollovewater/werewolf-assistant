@@ -32,6 +32,12 @@ function App() {
       }
     }
   });
+  // Helper to count alive per team
+  const alivePlayers = players.filter(p => p.isAlive);
+  const getRoleInfoApp = (roleId) => allRoles.find(r => r.id === roleId);
+  const aliveWolves = alivePlayers.filter(p => getRoleInfoApp(p.role)?.team === 'WEREWOLF').length;
+  const aliveVillagers = alivePlayers.filter(p => getRoleInfoApp(p.role)?.team === 'VILLAGER').length;
+  const aliveMutants = alivePlayers.filter(p => getRoleInfoApp(p.role)?.team === 'MUTANT').length;
 
   return (
     <div className="min-h-screen p-4 sm:p-8 relative">
@@ -48,7 +54,7 @@ function App() {
                 <p className="text-sm text-gray-500 font-medium m-0 leading-none">Game Master Pro</p>
                 {players.length > 0 && (
                   <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full dark:bg-green-900/40 dark:text-green-400">
-                    Sống: {players.filter(p => p.isAlive).length}/{players.length}
+                    Sống: {alivePlayers.length}/{players.length} (Dân: {aliveVillagers}, Sói: {aliveWolves}, Khác: {aliveMutants})
                   </span>
                 )}
               </div>
