@@ -44,8 +44,8 @@ export const DEFAULT_ROLES = [
 ];
 
 export const NIGHT_ORDER = [
-  'nhan_ban',
   'than_tinh_yeu',
+  'nhan_ban',
   'bao_ve',
   'soi_thuong',
   'soi_an',

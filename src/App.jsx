@@ -37,13 +37,40 @@ function App() {
     <div className="min-h-screen p-4 sm:p-8 relative">
       {/* Header Navigation */}
       <header className="max-w-5xl mx-auto mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg">
-            <Moon size={24} className="fill-current" />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg">
+              <Moon size={24} className="fill-current" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-foreground m-0 leading-none pb-1">Ma Sói</h1>
+              <p className="text-sm text-gray-500 font-medium m-0 leading-none">Game Master Pro</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground m-0 leading-none pb-1">Ma Sói</h1>
-            <p className="text-sm text-gray-500 font-medium m-0 leading-none">Game Master Pro</p>
+          <div className="flex items-center gap-2 mt-2 sm:mt-0 sm:ml-4">
+            <button 
+              onClick={() => {
+                if (window.confirm('Chơi lại với đội hình hiện tại? Các vai trò đã gán sẽ bị xóa.')) {
+                  setPlayers(players.map(p => ({ id: p.id, name: p.name, isAlive: true, role: null, roleInstId: null, notes: {} })));
+                  setStep(2);
+                }
+              }}
+              className="px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 rounded-lg flex items-center gap-1 transition-colors"
+            >
+              <RefreshCw size={14} /> Chơi Lại (Giữ người)
+            </button>
+            <button 
+              onClick={() => {
+                if (window.confirm('Bạn có chắc chắn muốn XÓA HẾT tất cả người chơi và số lượng bài để tạo ván mới hoàn toàn?')) {
+                  setPlayers([]);
+                  setRoleQuantities({});
+                  setStep(1);
+                }
+              }}
+              className="px-3 py-1.5 text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 rounded-lg flex items-center gap-1 transition-colors"
+            >
+              <Trash2 size={14} /> Xóa Hết
+            </button>
           </div>
         </div>
         
