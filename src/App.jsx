@@ -4,7 +4,7 @@ import RoleAssignment from './components/RoleAssignment';
 import GameDashboard from './components/GameDashboard';
 import NightView from './components/NightView';
 import { DEFAULT_ROLES } from './constants';
-import { Moon, Users, Shield, Grid, LayoutList } from 'lucide-react';
+import { Moon, Users, Shield, Grid, LayoutList, RefreshCw, Trash2 } from 'lucide-react';
 
 function App() {
   const [step, setStep] = useState(1);
