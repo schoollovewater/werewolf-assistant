@@ -44,6 +44,22 @@ export default function GameDashboard({ players, setPlayers, allRoles }) {
   };
 
   const aliveCount = players.filter(p => p.isAlive).length;
+  const [filterType, setFilterType] = useState('all');
+
+  const filteredPlayers = players.filter(p => {
+    if (filterType === 'all') return true;
+    if (filterType === 'alive') return p.isAlive;
+    if (filterType === 'dead') return !p.isAlive;
+    
+    const roleInfo = getRoleInfo(p.role);
+    if (!roleInfo) return false;
+    
+    if (filterType === 'WEREWOLF') return roleInfo.team === 'WEREWOLF';
+    if (filterType === 'VILLAGER') return roleInfo.team === 'VILLAGER';
+    if (filterType === 'MUTANT') return roleInfo.team === 'MUTANT';
+    
+    return true;
+  });
 
   return (
     <div className="w-full max-w-5xl mx-auto p-4 sm:p-6 bg-card rounded-2xl shadow-xl border border-border">
@@ -68,7 +84,7 @@ export default function GameDashboard({ players, setPlayers, allRoles }) {
         )}
       </AnimatePresence>
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-1">Bảng Flashcards</h2>
           <p className="text-sm text-gray-500">
@@ -81,15 +97,24 @@ export default function GameDashboard({ players, setPlayers, allRoles }) {
             setGlobalShowRoles(!globalShowRoles);
             setFlippedCards({});
           }}
-          className="px-4 py-2 bg-background border border-border rounded-lg flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors font-medium text-foreground"
+          className="px-4 py-2 bg-background border border-border rounded-lg flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors font-medium text-foreground whitespace-nowrap"
         >
           {globalShowRoles ? <EyeOff size={18} /> : <Eye size={18} />}
           {globalShowRoles ? 'Úp Tất Cả' : 'Lật Tất Cả'}
         </button>
       </div>
 
+      <div className="flex flex-wrap gap-2 mb-8">
+        <FilterButton active={filterType === 'all'} onClick={() => setFilterType('all')}>Tất cả</FilterButton>
+        <FilterButton active={filterType === 'alive'} onClick={() => setFilterType('alive')}>Còn sống</FilterButton>
+        <FilterButton active={filterType === 'dead'} onClick={() => setFilterType('dead')}>Đã chết</FilterButton>
+        <FilterButton active={filterType === 'WEREWOLF'} onClick={() => setFilterType('WEREWOLF')}>Phe Sói</FilterButton>
+        <FilterButton active={filterType === 'VILLAGER'} onClick={() => setFilterType('VILLAGER')}>Phe Dân</FilterButton>
+        <FilterButton active={filterType === 'MUTANT'} onClick={() => setFilterType('MUTANT')}>Phe Thứ 3</FilterButton>
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {players.map((player) => {
+        {filteredPlayers.map((player) => {
           const roleInfo = getRoleInfo(player.role);
           const style = roleInfo ? getRoleColor(roleInfo.id, roleInfo.team) : null;
           const isCardRevealed = globalShowRoles || flippedCards[player.id];
@@ -145,6 +170,27 @@ export default function GameDashboard({ players, setPlayers, allRoles }) {
           );
         })}
       </div>
+      {filteredPlayers.length === 0 && (
+        <div className="text-center py-12 text-gray-500">
+          Không có người chơi nào khớp với bộ lọc.
+        </div>
+      )}
     </div>
+  );
+}
+
+function FilterButton({ active, onClick, children }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "px-3 py-1.5 text-xs font-medium rounded-full transition-colors border",
+        active 
+          ? "bg-primary text-white border-primary" 
+          : "bg-background text-foreground border-border hover:bg-gray-100 dark:hover:bg-gray-800"
+      )}
+    >
+      {children}
+    </button>
   );
 }

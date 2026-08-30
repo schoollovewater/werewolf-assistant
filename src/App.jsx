@@ -44,7 +44,14 @@ function App() {
             </div>
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-foreground m-0 leading-none pb-1">Ma Sói</h1>
-              <p className="text-sm text-gray-500 font-medium m-0 leading-none">Game Master Pro</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-gray-500 font-medium m-0 leading-none">Game Master Pro</p>
+                {players.length > 0 && (
+                  <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full dark:bg-green-900/40 dark:text-green-400">
+                    Sống: {players.filter(p => p.isAlive).length}/{players.length}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2 mt-2 sm:mt-0 sm:ml-4">
