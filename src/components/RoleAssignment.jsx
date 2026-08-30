@@ -1,5 +1,5 @@
 import React from 'react';
-import { getRoleColor } from '../constants';
+import { getRoleColor, NIGHT_ORDER } from '../constants';
 import { Shield, ArrowRight, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
@@ -31,6 +31,14 @@ export default function RoleAssignment({ players, setPlayers, expandedRoles, onN
   const assignedCount = players.filter(p => p.roleInstId !== null).length;
   const isAllAssigned = assignedCount === expandedRoles.length;
 
+  const sortedExpandedRoles = [...expandedRoles].sort((a, b) => {
+    const idxA = NIGHT_ORDER.indexOf(a.id);
+    const idxB = NIGHT_ORDER.indexOf(b.id);
+    const rankA = idxA !== -1 ? idxA : 999;
+    const rankB = idxB !== -1 ? idxB : 999;
+    return rankA - rankB;
+  });
+
   return (
     <div className="w-full max-w-4xl mx-auto p-6 bg-card rounded-2xl shadow-xl border border-border">
       <div className="text-center mb-8">
@@ -39,7 +47,7 @@ export default function RoleAssignment({ players, setPlayers, expandedRoles, onN
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-h-[60vh] overflow-y-auto pr-2 content-start">
-        {expandedRoles.map((role, index) => {
+        {sortedExpandedRoles.map((role, index) => {
           const style = getRoleColor(role.id, role.team);
           const assignedPlayer = players.find(p => p.roleInstId === role.instanceId);
 

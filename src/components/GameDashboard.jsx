@@ -88,7 +88,7 @@ export default function GameDashboard({ players, setPlayers, allRoles }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {players.map((player) => {
           const roleInfo = getRoleInfo(player.role);
           const style = roleInfo ? getRoleColor(roleInfo.id, roleInfo.team) : null;
