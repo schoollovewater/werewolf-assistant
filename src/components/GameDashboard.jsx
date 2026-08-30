@@ -106,16 +106,17 @@ export default function GameDashboard({ players, setPlayers, allRoles }) {
               )}
             >
               {/* Vùng Role (Nửa trên hoặc toàn bộ mặt trước) */}
-              <div className={cn(
-                "flex-1 flex items-center justify-center p-2 text-center transition-all duration-300",
-                isCardRevealed 
-                  ? (style ? `${style.bg} ${style.whiteText}` : "bg-card text-foreground") 
-                  : "bg-gray-200 dark:bg-gray-800/80 group-hover:bg-gray-300 dark:group-hover:bg-gray-700/80"
-              )}>
-                {isCardRevealed && roleInfo ? (
+              <div 
+                className={cn(
+                  "flex-1 flex items-center justify-center p-2 text-center transition-all duration-300 bg-cover bg-center",
+                  isCardRevealed 
+                    ? (style ? `${style.bg} ${style.whiteText}` : "bg-card text-foreground") 
+                    : "group-hover:brightness-110"
+                )}
+                style={!isCardRevealed ? { backgroundImage: 'url(/card-back.jpg)' } : {}}
+              >
+                {isCardRevealed && roleInfo && (
                   <span className="font-bold text-lg leading-tight">{roleInfo.name}</span>
-                ) : (
-                  <EyeOff size={24} className="text-gray-400" />
                 )}
               </div>
               
