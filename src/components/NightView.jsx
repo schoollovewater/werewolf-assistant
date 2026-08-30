@@ -146,39 +146,6 @@ export default function NightView({ players, setPlayers, allRoles }) {
                           </select>
                         </div>
                       )}
-
-                      {!isDead && roleId === 'than_tinh_yeu' && (
-                        <div className="mt-2 pt-2 border-t border-gray-800 flex flex-col gap-2">
-                          <div className="flex items-center gap-2">
-                            <Heart size={14} className="text-pink-400" />
-                            <span className="text-gray-400 text-xs">Cặp đôi 1:</span>
-                            <select
-                              value={notes.lover1 || ''}
-                              onChange={(e) => updatePlayerNote(player.id, 'lover1', e.target.value)}
-                              className="flex-1 bg-transparent border-b border-pink-900 text-pink-400 px-1 py-0.5 text-sm focus:outline-none focus:border-pink-500 cursor-pointer"
-                            >
-                              <option value="" className="bg-gray-900">-- Chọn --</option>
-                              {players.map(p => (
-                                <option key={p.id} value={p.id} className="bg-gray-900">{p.name}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Heart size={14} className="text-pink-400" />
-                            <span className="text-gray-400 text-xs">Cặp đôi 2:</span>
-                            <select
-                              value={notes.lover2 || ''}
-                              onChange={(e) => updatePlayerNote(player.id, 'lover2', e.target.value)}
-                              className="flex-1 bg-transparent border-b border-pink-900 text-pink-400 px-1 py-0.5 text-sm focus:outline-none focus:border-pink-500 cursor-pointer"
-                            >
-                              <option value="" className="bg-gray-900">-- Chọn --</option>
-                              {players.map(p => (
-                                <option key={p.id} value={p.id} className="bg-gray-900">{p.name}</option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 );

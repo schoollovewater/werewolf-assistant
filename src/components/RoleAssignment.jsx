@@ -27,6 +27,21 @@ export default function RoleAssignment({ players, setPlayers, expandedRoles, onN
     }));
   };
 
+  const updatePlayerNote = (id, noteKey, value) => {
+    setPlayers(players.map(p => {
+      if (p.id === id) {
+        return {
+          ...p,
+          notes: {
+            ...(p.notes || {}),
+            [noteKey]: value
+          }
+        };
+      }
+      return p;
+    }));
+  };
+
   // Check xem còn thẻ nào chưa có chủ
   const assignedCount = players.filter(p => p.roleInstId !== null).length;
   const isAllAssigned = assignedCount === expandedRoles.length;
@@ -57,38 +72,72 @@ export default function RoleAssignment({ players, setPlayers, expandedRoles, onN
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
               key={role.instanceId} 
-              className="flex border border-border rounded-xl overflow-hidden bg-background h-16 shadow-sm"
+              className="flex flex-col border border-border rounded-xl overflow-hidden bg-background shadow-sm"
             >
-              {/* Cột trái: Thẻ Bài */}
-              <div className={cn(
-                "w-1/2 flex items-center justify-center font-bold text-sm px-2 text-center",
-                style.bg, style.whiteText
-              )}>
-                {role.name}
+              <div className="flex h-16">
+                {/* Cột trái: Thẻ Bài */}
+                <div className={cn(
+                  "w-1/2 flex items-center justify-center font-bold text-sm px-2 text-center",
+                  style.bg, style.whiteText
+                )}>
+                  {role.name}
+                </div>
+                
+                {/* Cột phải: Chọn người chơi */}
+                <div className="w-1/2 flex items-center">
+                  <select
+                    value={assignedPlayer ? assignedPlayer.id : ''}
+                    onChange={(e) => handlePlayerAssign(role.instanceId, e.target.value)}
+                    className={cn(
+                      "w-full h-full bg-transparent px-3 outline-none cursor-pointer text-sm font-medium",
+                      !assignedPlayer ? 'text-gray-500 italic' : 'text-foreground'
+                    )}
+                  >
+                    <option value="" disabled>-- Chọn người --</option>
+                    {players.map(p => {
+                      // Disable option nếu người này đã có thẻ khác (trừ khi chính là họ)
+                      const isTaken = p.roleInstId !== null && p.roleInstId !== role.instanceId;
+                      return (
+                        <option key={p.id} value={p.id} disabled={isTaken}>
+                          {p.name} {isTaken ? '(Đã có bài)' : ''}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
               </div>
-              
-              {/* Cột phải: Chọn người chơi */}
-              <div className="w-1/2 flex items-center">
-                <select
-                  value={assignedPlayer ? assignedPlayer.id : ''}
-                  onChange={(e) => handlePlayerAssign(role.instanceId, e.target.value)}
-                  className={cn(
-                    "w-full h-full bg-transparent px-3 outline-none cursor-pointer text-sm font-medium",
-                    !assignedPlayer ? 'text-gray-500 italic' : 'text-foreground'
-                  )}
-                >
-                  <option value="" disabled>-- Chọn người --</option>
-                  {players.map(p => {
-                    // Disable option nếu người này đã có thẻ khác (trừ khi chính là họ)
-                    const isTaken = p.roleInstId !== null && p.roleInstId !== role.instanceId;
-                    return (
-                      <option key={p.id} value={p.id} disabled={isTaken}>
-                        {p.name} {isTaken ? '(Đã có bài)' : ''}
-                      </option>
-                    )
-                  })}
-                </select>
-              </div>
+
+              {/* Ghi chú chọn bạn của Thần Tình Yêu (Nằm ngay trang 2) */}
+              {role.id === 'than_tinh_yeu' && assignedPlayer && (
+                <div className="bg-pink-950/20 p-3 border-t border-pink-900/30 flex flex-col gap-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-pink-500 font-medium whitespace-nowrap">Cặp đôi 1:</span>
+                    <select
+                      value={assignedPlayer.notes?.lover1 || ''}
+                      onChange={(e) => updatePlayerNote(assignedPlayer.id, 'lover1', e.target.value)}
+                      className="flex-1 bg-background border border-pink-900/50 rounded px-2 py-1 text-foreground focus:outline-none focus:border-pink-500"
+                    >
+                      <option value="">-- Chọn --</option>
+                      {players.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-pink-500 font-medium whitespace-nowrap">Cặp đôi 2:</span>
+                    <select
+                      value={assignedPlayer.notes?.lover2 || ''}
+                      onChange={(e) => updatePlayerNote(assignedPlayer.id, 'lover2', e.target.value)}
+                      className="flex-1 bg-background border border-pink-900/50 rounded px-2 py-1 text-foreground focus:outline-none focus:border-pink-500"
+                    >
+                      <option value="">-- Chọn --</option>
+                      {players.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
             </motion.div>
           )
         })}
